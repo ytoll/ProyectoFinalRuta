@@ -1,4 +1,6 @@
 import { test, expect } from "@playwright/test";
+import { LoginPage } from "../../pages/LoginPage";
+import { DEMO_EMAIL, DEMO_PASSWORD } from "../fixtures/demo-account";
 
 // REQ-P02 / REQ-P03: "Abandonado" es un estado terminal — no tiene transiciones
 // permitidas. "Cualquier transición no listada arriba debe ser rechazada con
@@ -7,8 +9,6 @@ import { test, expect } from "@playwright/test";
 // El bug: no es solo la API (ver tests/api/progress.spec.ts, P-1). La propia
 // UI de /mi-progreso ofrece el botón "Retomar" sobre un curso abandonado, y al
 // presionarlo revive el curso a "en-progreso" en vez de rechazar la acción.
-const VALID_EMAIL = "ana.garcia@ejemplo.com";
-const VALID_PASSWORD = "Segura2026!";
 const COURSE_ID = "fundamentos";
 
 test.describe("REQ-P02 — 'Abandonado' es terminal, también en la UI", () => {
@@ -16,11 +16,10 @@ test.describe("REQ-P02 — 'Abandonado' es terminal, también en la UI", () => {
     page,
   }) => {
     // Login por UI, para que la sesión del navegador quede autenticada.
-    await page.goto("/login");
-    await page.getByLabel("Email").fill(VALID_EMAIL);
-    await page.getByLabel("Contraseña").fill(VALID_PASSWORD);
-    await page.getByRole("button", { name: "Iniciar sesión" }).click();
-    await expect(page.getByText("Has iniciado sesión correctamente.")).toBeVisible();
+    const loginPage = new LoginPage(page);
+    await loginPage.goto();
+    await loginPage.login(DEMO_EMAIL, DEMO_PASSWORD);
+    await expect(loginPage.successMessage).toBeVisible();
 
     // Toda la navegación es por links de la propia app (nunca page.goto):
     // una navegación completa dispara el bug de sesión (BUG-08) y nos

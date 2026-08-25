@@ -1,15 +1,13 @@
 import { test, expect } from '@playwright/test';
 import { LoginPage } from '../../pages/LoginPage';
-
-const VALID_EMAIL = 'ana.garcia@ejemplo.com';
-const VALID_PASSWORD = 'Segura2026!';
+import { DEMO_EMAIL, DEMO_PASSWORD } from '../fixtures/demo-account';
 
 test.describe('HU-LOGIN-01 - Inicio de sesión', () => {
   test('CP1 - Login con credenciales válidas muestra mensaje de éxito', async ({ page }) => {
     const loginPage = new LoginPage(page);
     await loginPage.goto();
 
-    await loginPage.login(VALID_EMAIL, VALID_PASSWORD);
+    await loginPage.login(DEMO_EMAIL, DEMO_PASSWORD);
 
     await expect(loginPage.successMessage).toBeVisible();
   });
@@ -18,7 +16,7 @@ test.describe('HU-LOGIN-01 - Inicio de sesión', () => {
     const loginPage = new LoginPage(page);
     await loginPage.goto();
 
-    await loginPage.login(VALID_EMAIL, 'ContraseñaIncorrecta1!');
+    await loginPage.login(DEMO_EMAIL, 'ContraseñaIncorrecta1!');
 
     // MI DUDA PARA S11:
     // No probé waitForTimeout a propósito: ya lo usé en otro proyecto y no me

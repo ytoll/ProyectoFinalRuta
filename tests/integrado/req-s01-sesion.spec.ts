@@ -1,4 +1,6 @@
 import { test, expect } from "@playwright/test";
+import { LoginPage } from "../../pages/LoginPage";
+import { DEMO_EMAIL, DEMO_PASSWORD } from "../fixtures/demo-account";
 
 // REQ-S01: "Las páginas /cursos y /mi-progreso requieren autenticación. Un
 // usuario no logueado debe ver un mensaje pidiendo iniciar sesión."
@@ -7,16 +9,13 @@ import { test, expect } from "@playwright/test";
 // pero GET /api/auth/me con esa misma cookie devuelve realUser: null. El
 // frontend interpreta eso como "no logueado" y aplica el comportamiento de
 // REQ-S01 a un usuario que en realidad sí inició sesión.
-const VALID_EMAIL = "ana.garcia@ejemplo.com";
-const VALID_PASSWORD = "Segura2026!";
-
 test.describe("REQ-S01 — la sesión debe persistir tras el login", () => {
   test("S-1: /api/auth/me devuelve realUser: null con una cookie de sesión recién creada (bug)", async ({
     request,
   }) => {
     // Preparación: login por API, igual que haría el formulario.
     const login = await request.post("/api/login", {
-      data: { email: VALID_EMAIL, password: VALID_PASSWORD },
+      data: { email: DEMO_EMAIL, password: DEMO_PASSWORD },
     });
     expect(login.status()).toBe(200);
 
@@ -33,20 +32,19 @@ test.describe("REQ-S01 — la sesión debe persistir tras el login", () => {
   });
 
   test("S-2: tras loguearse por UI, un refresh pierde la sesión (bug)", async ({ page }) => {
-    await page.goto("/login");
-    await page.getByLabel("Email").fill(VALID_EMAIL);
-    await page.getByLabel("Contraseña").fill(VALID_PASSWORD);
-    await page.getByRole("button", { name: "Iniciar sesión" }).click();
+    const loginPage = new LoginPage(page);
+    await loginPage.goto();
+    await loginPage.login(DEMO_EMAIL, DEMO_PASSWORD);
 
     // Confirmamos que el login funcionó: mensaje de bienvenida visible.
-    await expect(page.getByText("Has iniciado sesión correctamente.")).toBeVisible();
+    await expect(loginPage.successMessage).toBeVisible();
 
     // La caza: recargamos la página con la sesión recién iniciada.
     await page.reload();
 
     // El bug: tras el refresh, la app ya no reconoce la sesión y vuelve a
     // pedir el login, en vez de mantener al usuario autenticado.
-    await expect(page.getByLabel("Email")).toBeVisible();
-    await expect(page.getByLabel("Contraseña")).toBeVisible();
+    await expect(loginPage.emailInput).toBeVisible();
+    await expect(loginPage.passwordInput).toBeVisible();
   });
 });

@@ -1,11 +1,14 @@
 {
-  "name": "proyecto-prueba",
+  "name": "proyecto-final-academia-sin-humo",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
-  "scripts": {},
-  "keywords": [],
-  "author": "",
+  "description": "Suite de pruebas automatizadas con Playwright sobre Academia sin Humo — proyecto final de la Ruta de Transformación QA Automation con IA de TesteandoYa.",
+  "scripts": {
+    "test": "playwright test",
+    "test:headed": "playwright test --headed",
+    "report": "playwright show-report"
+  },
+  "keywords": ["playwright", "qa-automation", "testing"],
+  "author": "Yuniet Toll",
   "license": "ISC",
   "devDependencies": {
     "@playwright/test": "^1.61.0",

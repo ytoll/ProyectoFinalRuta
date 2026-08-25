@@ -1,4 +1,6 @@
 import { test, expect } from "@playwright/test";
+import { LoginPage } from "../../pages/LoginPage";
+import { DEMO_EMAIL, DEMO_PASSWORD } from "../fixtures/demo-account";
 
 // REQ-C03: "Un curso solo se desbloquea cuando el estudiante ha completado
 // su prerequisito. Estar inscrito o en progreso no cuenta como completado."
@@ -8,18 +10,14 @@ import { test, expect } from "@playwright/test";
 // el prerequisito, sin haberlo completado. El intento real de inscripción
 // sí se rechaza correctamente (ver tests/integrado/req-c06-prerequisito no
 // vía UI) — el bug es que la tarjeta miente visualmente antes de eso.
-const VALID_EMAIL = "ana.garcia@ejemplo.com";
-const VALID_PASSWORD = "Segura2026!";
-
 test.describe("REQ-C03 — la tarjeta se desbloquea sin completar el prerequisito", () => {
   test("V-1: 'Diseño de casos' se muestra desbloqueado apenas te inscribís en Fundamentos, sin completarlo (bug)", async ({
     page,
   }) => {
-    await page.goto("/login");
-    await page.getByLabel("Email").fill(VALID_EMAIL);
-    await page.getByLabel("Contraseña").fill(VALID_PASSWORD);
-    await page.getByRole("button", { name: "Iniciar sesión" }).click();
-    await expect(page.getByText("Has iniciado sesión correctamente.")).toBeVisible();
+    const loginPage = new LoginPage(page);
+    await loginPage.goto();
+    await loginPage.login(DEMO_EMAIL, DEMO_PASSWORD);
+    await expect(loginPage.successMessage).toBeVisible();
 
     await page.getByRole("link", { name: "Ver cursos" }).click();
     await page.getByTestId("enroll-fundamentos").waitFor();

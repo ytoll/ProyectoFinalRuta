@@ -1,4 +1,5 @@
 import { test, expect } from "@playwright/test";
+import { DEMO_PASSWORD } from "../fixtures/demo-account";
 
 // REQ-L03: "después de 5 intentos fallidos consecutivos, la cuenta se
 // bloquea por 30 segundos."
@@ -10,12 +11,11 @@ test.describe("REQ-L03 — rate limiting de login", () => {
     // Cuenta nueva y descartable, para no afectar la cuenta demo compartida
     // que usan el resto de los tests.
     const email = `lockout-${Date.now()}@ejemplo.com`;
-    const realPassword = "Segura2026!";
 
     await page.goto("/registro");
     await page.getByTestId("register-name").fill("Lockout Test");
     await page.getByTestId("register-email").fill(email);
-    await page.getByTestId("register-password").fill(realPassword);
+    await page.getByTestId("register-password").fill(DEMO_PASSWORD);
     await page.getByTestId("register-age").fill("25");
     await page.getByTestId("register-submit").click();
     await expect(page.getByTestId("register-success")).toBeVisible();
@@ -43,12 +43,11 @@ test.describe("REQ-L03 — rate limiting de login", () => {
     request,
   }) => {
     const email = `lockout-duracion-${Date.now()}@ejemplo.com`;
-    const realPassword = "Segura2026!";
 
     await page.goto("/registro");
     await page.getByTestId("register-name").fill("Lockout Duracion");
     await page.getByTestId("register-email").fill(email);
-    await page.getByTestId("register-password").fill(realPassword);
+    await page.getByTestId("register-password").fill(DEMO_PASSWORD);
     await page.getByTestId("register-age").fill("25");
     await page.getByTestId("register-submit").click();
     await expect(page.getByTestId("register-success")).toBeVisible();

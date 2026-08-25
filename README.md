@@ -70,13 +70,13 @@ hallazgo, diseñados desde la especificación con 5 técnicas distintas, están 
 ```bash
 npm install
 npx playwright install --with-deps
-npx playwright test
+npm test
 ```
 
 Ver el reporte HTML después de correr:
 
 ```bash
-npx playwright show-report
+npm run report
 ```
 
 Correr un archivo puntual, por ejemplo el flujo integrado de sesión:

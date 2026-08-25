@@ -1,4 +1,6 @@
 import { test, expect } from "@playwright/test";
+import { LoginPage } from "../../pages/LoginPage";
+import { DEMO_PASSWORD } from "../fixtures/demo-account";
 
 // REQ-L03: "...la cuenta se bloquea por 30 segundos. Durante el bloqueo: el
 // botón de login debe estar deshabilitado, un timer visual muestra los
@@ -17,21 +19,19 @@ test.describe("REQ-L03 — timer visual del bloqueo de login", () => {
     test.setTimeout(45_000);
 
     const email = `lockout-timer-${Date.now()}@ejemplo.com`;
-    const realPassword = "Segura2026!";
 
     await page.goto("/registro");
     await page.getByTestId("register-name").fill("Lockout Timer");
     await page.getByTestId("register-email").fill(email);
-    await page.getByTestId("register-password").fill(realPassword);
+    await page.getByTestId("register-password").fill(DEMO_PASSWORD);
     await page.getByTestId("register-age").fill("25");
     await page.getByTestId("register-submit").click();
     await expect(page.getByTestId("register-success")).toBeVisible();
 
-    await page.goto("/login");
+    const loginPage = new LoginPage(page);
+    await loginPage.goto();
     for (let i = 1; i <= 4; i++) {
-      await page.getByLabel("Email").fill(email);
-      await page.getByLabel("Contraseña").fill("PasswordIncorrecta1!");
-      await page.getByRole("button", { name: "Iniciar sesión" }).click();
+      await loginPage.login(email, "PasswordIncorrecta1!");
       await expect(page.getByTestId("login-submit")).not.toHaveText("Verificando...");
     }
 

@@ -1,4 +1,5 @@
 import { test, expect } from "@playwright/test";
+import { DEMO_EMAIL, DEMO_PASSWORD } from "../fixtures/demo-account";
 
 test.describe("API de cursos", () => {
   test("GET /api/courses responde 200 con la lista de cursos", async ({ request }) => {
@@ -21,7 +22,7 @@ test.describe("API de cursos", () => {
     request,
   }) => {
     const login = await request.post("/api/login", {
-      data: { email: "ana.garcia@ejemplo.com", password: "Segura2026!" },
+      data: { email: DEMO_EMAIL, password: DEMO_PASSWORD },
     });
     expect(login.status()).toBe(200);
 

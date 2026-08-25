@@ -1,4 +1,6 @@
 import { test, expect } from "@playwright/test";
+import { LoginPage } from "../../pages/LoginPage";
+import { DEMO_EMAIL, DEMO_PASSWORD } from "../fixtures/demo-account";
 
 // REQ-C02, fila "Sí prerequisito / Sí cupo → Inscrito" (en este caso,
 // "fundamentos" no tiene prerequisito, así que aplica directo).
@@ -24,11 +26,10 @@ test.describe("REQ-C02 — camino feliz de inscripción (UI prepara, API verific
   test("C-1: inscribirse por UI en un curso sin prerequisito queda registrado en la API", async ({
     page,
   }) => {
-    await page.goto("/login");
-    await page.getByLabel("Email").fill("ana.garcia@ejemplo.com");
-    await page.getByLabel("Contraseña").fill("Segura2026!");
-    await page.getByRole("button", { name: "Iniciar sesión" }).click();
-    await expect(page.getByText("Has iniciado sesión correctamente.")).toBeVisible();
+    const loginPage = new LoginPage(page);
+    await loginPage.goto();
+    await loginPage.login(DEMO_EMAIL, DEMO_PASSWORD);
+    await expect(loginPage.successMessage).toBeVisible();
 
     // La UI prepara: nos inscribimos en "fundamentos" con un clic real.
     await page.getByRole("link", { name: "Ver cursos" }).click();
