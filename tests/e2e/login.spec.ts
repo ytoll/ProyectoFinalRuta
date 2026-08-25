@@ -1,26 +1,24 @@
 import { test, expect } from '@playwright/test';
+import { LoginPage } from '../../pages/LoginPage';
 
-const LOGIN_URL = 'https://playground.calidadsinhumo.com/login';
 const VALID_EMAIL = 'ana.garcia@ejemplo.com';
 const VALID_PASSWORD = 'Segura2026!';
 
 test.describe('HU-LOGIN-01 - Inicio de sesión', () => {
   test('CP1 - Login con credenciales válidas muestra mensaje de éxito', async ({ page }) => {
-    await page.goto(LOGIN_URL);
+    const loginPage = new LoginPage(page);
+    await loginPage.goto();
 
-    await page.getByLabel('Email').fill(VALID_EMAIL);
-    await page.getByLabel('Contraseña').fill(VALID_PASSWORD);
-    await page.getByRole('button', { name: 'Iniciar sesión' }).click();
+    await loginPage.login(VALID_EMAIL, VALID_PASSWORD);
 
-    await expect(page.getByText('Has iniciado sesión correctamente.')).toBeVisible();
+    await expect(loginPage.successMessage).toBeVisible();
   });
 
   test('CP2 - Login con contraseña incorrecta muestra mensaje de error y no concede acceso', async ({ page }) => {
-    await page.goto(LOGIN_URL);
+    const loginPage = new LoginPage(page);
+    await loginPage.goto();
 
-    await page.getByLabel('Email').fill(VALID_EMAIL);
-    await page.getByLabel('Contraseña').fill('ContraseñaIncorrecta1!');
-    await page.getByRole('button', { name: 'Iniciar sesión' }).click();
+    await loginPage.login(VALID_EMAIL, 'ContraseñaIncorrecta1!');
 
     // MI DUDA PARA S11:
     // No probé waitForTimeout a propósito: ya lo usé en otro proyecto y no me
@@ -28,7 +26,7 @@ test.describe('HU-LOGIN-01 - Inicio de sesión', () => {
     // confianza. Usé toBeVisible() esperando que "espere sola", pero no estoy
     // 100% segura de que sea la forma correcta de afirmar que el mensaje de
     // éxito NO aparece, ni de cuánto tiempo espera Playwright antes de fallar.
-    await expect(page.getByText('Email o contraseña incorrectos')).toBeVisible();
-    await expect(page.getByText('Has iniciado sesión correctamente.')).not.toBeVisible();
+    await expect(loginPage.errorMessage).toBeVisible();
+    await expect(loginPage.successMessage).not.toBeVisible();
   });
 });
