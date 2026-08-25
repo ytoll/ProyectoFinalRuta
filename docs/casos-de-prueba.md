@@ -340,6 +340,21 @@ algo que no se investigó en esta entrega (ver `docs/estrategia.md`).
 - **Resultado obtenido:** Se muestra desbloqueada (candado desaparece, botón pasa a "Inscribirse").
 - **Estado:** FALLA → BUG-13
 
+### CP-36 · Camino feliz: inscribirse por UI queda registrado del lado del servidor
+- **REQ que valida:** REQ-C02 (fila de inscripción exitosa), como flujo integrado UI → API.
+- **Precondición:** Sesión iniciada, curso "Fundamentos de Testing" (sin prerequisito) sin
+  inscripción previa.
+- **Pasos:** Inscribirse en "Fundamentos" con un clic real en `/cursos`. Verificar por
+  `GET /api/progress` que el curso aparece con `status: "inscrito"`.
+- **Resultado esperado (según la spec):** La inscripción exitosa por UI queda reflejada en el
+  estado del servidor.
+- **Resultado obtenido:** Confirmado — `GET /api/progress` devuelve el curso con
+  `status: "inscrito"` (con un sondeo corto por consistencia eventual del backend).
+- **Estado:** PASA — cierra el hueco de "camino feliz" que señaló el juez en la primera evaluación
+  (ver más abajo). Dato dinámico compartido: el `courseId` y el momento de inscripción nacen en el
+  clic de la UI y se consumen leyendo la API — detalle completo en
+  `tests/integrado/req-c02-inscripcion-camino-feliz.spec.ts`.
+
 ---
 
 ## Resumen
@@ -353,7 +368,8 @@ algo que no se investigó en esta entrega (ver `docs/estrategia.md`).
 | Autorización y estado | CP-27 a CP-29 | 1 | 1 (BUG-08) | 1 |
 | Contrato de API (bonus) | CP-30 | 0 | 1 (BUG-09) | 0 |
 | Otros hallazgos (bonus) | CP-31 a CP-35 | 0 | 5 (BUG-05, 06, 07, 13, 14) | 0 |
-| **Total** | **35** | **17** | **14** | **4** |
+| Integrado — camino feliz (bonus) | CP-36 | 1 | 0 | 0 |
+| **Total** | **36** | **18** | **14** | **4** |
 
 ---
 
@@ -371,15 +387,19 @@ Aplicando los 4 criterios de la consigna (cobertura, claridad, casos límite, tr
   referencias cruzadas a otros casos.
 - **Casos límite: 3/3** — los tres campos numéricos de registro están cubiertos en el límite exacto
   y límite±1, siguiendo la metodología que sugiere la propia spec.
-- **Trazabilidad al REQ: 3/3** — los 35 casos citan su REQ, la mayoría con cita textual literal.
+- **Trazabilidad al REQ: 3/3** — los 36 casos citan su REQ, la mayoría con cita textual literal.
 
 **Total: 12/12.**
 
 **Qué acepté del juez:** en la primera pasada (11/12), señaló que faltaba un caso de "camino feliz"
-real en la tabla de decisión. No se resolvió ese hueco puntual (sigue pendiente CP-17), pero
-investigar más a fondo el resto del alcance (bloqueo de login, cupos, paginación, CV, desbloqueo
-visual) subió la cobertura general a 3/3 igual, por los bugs nuevos que aparecieron en el camino —
-incluyendo uno (BUG-12, el timer) que casi se documenta mal por un conteo manual poco confiable, y
+real en la tabla de decisión. Ese hueco puntual se resolvió con `CP-36`: un flujo integrado real
+(UI inscribe, API confirma) que demuestra que la inscripción exitosa funciona de punta a punta, no
+solo los caminos de rechazo. La combinación específica de REQ-C02 con prerequisito completado
+(CP-17) sigue pendiente porque requiere además avanzar un curso hasta "Completado", que no se
+investigó a tiempo. Investigar más a fondo el resto del alcance (bloqueo de login, cupos,
+paginación, CV, desbloqueo visual) también subió la cobertura general, por los bugs nuevos que
+aparecieron en el camino — incluyendo uno (BUG-12, el timer) que casi se documenta mal por un
+conteo manual poco confiable, y
 se corrigió midiendo con precisión antes de escribirlo.
 
 **Qué quedó pendiente a pesar del puntaje:** CP-17, CP-18, CP-19 (3 de 4 combinaciones de REQ-C02) y
